@@ -120,11 +120,7 @@ class BlockController {
     verifySignature(reqPayload){
         if(reqPayload.address && reqPayload.signature){
             let memPoolData= this.mempool.get(reqPayload.address);
-            console.log('pool data:' + JSON.stringify(memPoolData));
-            console.log('address:'+ reqPayload.address);
-            console.log('signature:'+ reqPayload.signature);
             let response = BitcoinMessage.verify(memPoolData.message, reqPayload.address, reqPayload.signature);
-            console.log('response:'+ response);
             return response;
         }
         return false;
@@ -180,8 +176,6 @@ class BlockController {
      */
     addRequestValidation(walletAddress){
 
-        console.log('addRequestValidation:'+ walletAddress);
-        console.log('timeoutRequestsWindowTime:'+ this.timeoutRequestsWindowTime);
         var self = this;
         let requestTimeout = setTimeout( function(){
             self.removeValidationRequest(walletAddress); 
@@ -212,7 +206,6 @@ class BlockController {
         this.timeRequests.delete(walletAddress);
         this.mempool.delete(walletAddress);
         this.mempoolValid.delete(walletAddress);
-        console.log('remove validation request , mempool, mempoolvalid :'+ walletAddress);
     }
 
     /**
@@ -230,6 +223,8 @@ class BlockController {
 
                 let block = new BlockClass.Block(blockBody);
                 this.blockChainServie.addBlock(block).then(_block => {
+                    // remove address from mempool valid
+                    this.removeValidationRequest(req.body.address);
                     res.json(block);
                 }).catch(err=>{
                     this.sendErrorMessage(500, "Invlaid adding into blockchain address:"+err, res);
@@ -270,7 +265,6 @@ class BlockController {
                 return;
             }
             this.blockChainServie.getBlockByWalletAddress(req.params.addressdata).then(blocks => {
-                console.log('getStartsWalletAddress:'+ blocks.length);
                 blocks.forEach( blockdata => {
                     blockdata.body.star.storyDecoded = hex2ascii(blockdata.body.star.story);
                 });
