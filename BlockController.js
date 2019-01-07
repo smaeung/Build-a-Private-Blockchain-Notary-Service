@@ -219,6 +219,10 @@ class BlockController {
                     return;
                 }
                 let blockBody = req.body;
+                if(!blockBody.star.story || !blockBody.star.dec || !blockBody.star.ra){
+                    this.sendErrorMessage(INVALID_STATUS_CODE, "Invlaid request payload for star properties", res);
+                    return;
+                }
                 blockBody.star.story = Buffer(blockBody.star.story).toString('hex');
 
                 let block = new BlockClass.Block(blockBody);
